@@ -6,13 +6,21 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <h1>Welcome to next JS Course 2024</h1>
       <hr />
-      <Link href='/products' className="button">
+      <Link
+        href="/products"
+        className="border rounded-full px-3 py-2 bg-blue-500 text-2xl text-white"
+      >
         Navigate to products page
       </Link>
-      <Link href='/account' className="button">
+      <Link
+        href="/account"
+        className="border rounded-full px-3 py-2 bg-blue-500 text-2xl text-white"
+      >
         Navigate to Account Page
       </Link>
-      <h2 >Alternative way using <code>useRouter</code></h2>
+      <h2>
+        Alternative way using <code>useRouter</code>
+      </h2>
     </main>
   );
 }
