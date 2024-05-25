@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bootstrap Site</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+
+<style>
+*{
+ margin: 0;
+ padding: 0;
+}
+body{
+padding-left:0.5rem;
+font-size: 0.8rem;
+}
+p,li,pre,a{
+/* font-size: 1rem; */
+font-size: inherit;
+}
+.hljs-string,.hljs-comment{
+color:green;
+}
+pre{
+white-space: pre-wrap;
+border:1px dashed green;
+padding:10px;
+}
+.hljs-keyword{
+color:blue;
+}
+.hljs-function,.hljs-built_in{
+color:brown;
+}
+.hljs-tag,.hljs-name{
+color:purple;
+}
+.xml{
+color:red;
+}
+h1{
+ text-align: center;
+ background-color: gray;
+
+}
+h2{
+ border-left:6px solid green;
+ background-color: lightgray;
+ padding-left:0.5rem;
+ font-style: italic;
+}
+h3{
+ border:1px solid blue;
+ padding-left:0.5rem;
+ font-size: 0.9rem;
+}
+</style>
+</head>
+<body>
+<h1 id="fetching-data">Fetching Data</h1>
+<h2 id="server-side-data-fetching">Server Side data fetching</h2>
+<pre><code class="lang-jsx"><span class="hljs-comment">// src/app/server-data-fetch/page.jsx</span>
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fetchListOfUsers</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-comment">/*
+Notes:
+* By default, Next.js automatically caches the returned values of fetch in the Data Cache on the server.
+* 'force-cache' is the default, unless a dynamic function such as cookies() is used, in which case it will default to no-store.
+*  use 'no-store' to opt out of caching for individual fetch requests (fetch data dynamically, on every request).
+* The no-cache option behaves the same way as no-store in Next.js.
+* fetch requests are not cached when:
+- Used inside a Server Action.
+- Used inside a Route Handler that uses the POST method.
+* set the cache lifetime of resource by seconds:
+
+fetch(`https://...`, { next: { revalidate: false | 0 | number } })
+
+false: always cache the resource
+0 : prevent resource from being cached
+number: cache the resource for the specified number of seconds.
+*/</span>
+<span class="hljs-keyword">try</span> {
+<span class="hljs-keyword">const</span> apiResponse = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">"https://dummyjson.com/users"</span>, {
+  <span class="hljs-attr">cache</span>: <span class="hljs-string">"no-store"</span>,
+});
+<span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> apiResponse.json();
+
+<span class="hljs-keyword">return</span> result.users;
+} <span class="hljs-keyword">catch</span> (err) {
+<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(err);
+}
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">ServerSideFetching</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">const</span> listOfUsers = <span class="hljs-keyword">await</span> fetchListOfUsers();
+<span class="hljs-comment">// console.log(listOfUsers);</span>
+<span class="hljs-keyword">return</span> (
+<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Server side data fetching<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+    {listOfUsers &amp;&amp; listOfUsers.length &gt; 0
+      ? listOfUsers.map((user) =&gt; (
+          <span class="hljs-tag">&lt;<span class="hljs-name">li</span>
+            <span class="hljs-attr">key</span>=<span class="hljs-string">{user.id}</span>
+            <span class="hljs-attr">className</span>=<span class="hljs-string">"text-2xl mx-3 borderbg-slate-800 text-white"</span>
+          &gt;</span>
+            {user.id} - {user?.firstName} {user?.lastName}
+          <span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+        ))
+      : null}
+  <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+);
+}
+</code></pre>
+<h2 id="client-side-data-fetching">Client Side data fetching</h2>
+<ul>
+<li><code>useEffect</code>, <code>useState</code> hooks</li>
+<li><code>swr</code>, <code>useSWR</code> hook with loading state</li>
+</ul>
+<hr>
+<h3 id="-useeffect-usestate-hooks"><code>useEffect</code>, <code>useState</code> hooks</h3>
+<pre><code class="lang-jsx"><span class="hljs-comment">// src/app/client-data-fetch/page.jsx</span>
+<span class="hljs-string">"use client"</span>;
+
+<span class="hljs-keyword">import</span> { useEffect, useState } <span class="hljs-keyword">from</span> <span class="hljs-string">"react"</span>;
+<span class="hljs-keyword">import</span> Link <span class="hljs-keyword">from</span> <span class="hljs-string">"next/link"</span>;
+
+
+<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fetchListOfUsers</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">try</span> {
+
+<span class="hljs-keyword">const</span> apiResponse = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">"https://dummyjson.com/users"</span>);
+<span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> apiResponse.json();
+<span class="hljs-keyword">return</span> result.users;
+} <span class="hljs-keyword">catch</span> (err) {
+<span class="hljs-built_in">console</span>.log(err);
+}
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">ClientSideDataFetching</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">const</span> [loading, setLoading] = useState(<span class="hljs-literal">true</span>);
+<span class="hljs-keyword">const</span> [users, setUsers] = useState([]);
+
+useEffect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+fetchListOfUsers().then(<span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {
+  setUsers(data);
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"data"</span>, data);
+  setLoading(<span class="hljs-literal">false</span>);
+});
+setLoading(<span class="hljs-literal">false</span>);
+}, []);
+
+<span class="hljs-keyword">if</span> (loading) {
+<span class="hljs-keyword">return</span> (
+  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"text-3xl font-extrabold"</span>&gt;</span>
+    Loading Users | Please waite....
+  <span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span></span>
+);
+} <span class="hljs-keyword">else</span> {
+<span class="hljs-keyword">return</span> (
+  <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"text-2xl bg-slate-500 text-white"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Client side data fetching<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      {users &amp;&amp; users.length &gt; 0
+        ? users.map((user) =&gt; (
+        // ....
+          ))
+        : null}
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/&gt;</span>
+);
+}
+}</span>
+</code></pre>
+<h3 id="-useswr-hook"><code>useSWR</code> hook</h3>
+<h4 id="-useswr-quick-guide-"><code>useSWR</code> quick guide:</h4>
+<ul>
+<li><code>npm install swr</code></li>
+<li>For normal <code>RESTful</code> APIs with <code>JSON</code> data, first you need to create a <code>fetcher</code> function, which is just a wrapper of the native <code>fetch</code>:</li>
+</ul>
+<pre><code class="lang-js"><span class="hljs-keyword">const</span> fetcher = <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> fetch(...args).then(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> res.json()
+</code></pre>
+<p>Then you can import <code>useSWR</code> and start using it inside any function components:</p>
+<pre><code class="lang-js"><span class="hljs-keyword">import</span> useSWR <span class="hljs-keyword">from</span> <span class="hljs-string">'swr'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Profile</span> (<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">const</span> { data, error, isLoading } = useSWR(<span class="hljs-string">'https://dummyjson.com/'</span>, fetcher) 
+
+<span class="hljs-keyword">if</span> (error) <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>failed to load<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+<span class="hljs-keyword">if</span> (isLoading) <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>loading...<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+
+<span class="hljs-comment">// render data</span>
+<span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>hello {data.name}!<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
+}
+</code></pre>
+<blockquote>
+<p>More about <code>swr</code> hook, see <a href="https://swr.vercel.app/">https://swr.vercel.app/</a></p>
+</blockquote>
+<pre><code class="lang-jsx"><span class="hljs-comment">// src/app/client-data-fetch/page.jsx</span>
+<span class="hljs-string">"use client"</span>;
+
+<span class="hljs-keyword">import</span> useSWR <span class="hljs-keyword">from</span> <span class="hljs-string">"swr"</span>;
+<span class="hljs-keyword">import</span> Link <span class="hljs-keyword">from</span> <span class="hljs-string">"next/link"</span>;
+
+<span class="hljs-keyword">const</span> fetcher = <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> fetch(...args).then(<span class="hljs-function">(<span class="hljs-params">res</span>) =&gt;</span> res.json());
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">ClientSideDataFetching</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-keyword">const</span> { data, error, isLoading } = useSWR(
+<span class="hljs-string">"https://dummyjson.com/users"</span>,
+fetcher
+); <span class="hljs-comment">// to test error , change the url to e.x  https://.../uesr</span>
+
+<span class="hljs-comment">// console.log(data?.users);</span>
+<span class="hljs-keyword">if</span> (error) {
+<span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>error....<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>;
+}
+<span class="hljs-keyword">if</span> (isLoading) {
+<span class="hljs-keyword">return</span> (
+  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"text-3xl font-extrabold"</span>&gt;</span>
+    Loading Users | Please waite....
+  <span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span></span>
+);
+}
+
+<span class="hljs-keyword">return</span> (
+  <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"text-2xl bg-slate-500 text-white"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Client side data fetching<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      {data &amp;&amp; data?.users &amp;&amp; data?.users.length &gt; 0
+        ? data.users.map((user) =&gt; (
+            <span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">key</span>=<span class="hljs-string">{user.id}</span>&gt;</span>
+              <span class="hljs-tag">&lt;<span class="hljs-name">Link</span>
+                <span class="hljs-attr">href</span>=<span class="hljs-string">{</span>`/<span class="hljs-attr">client-data-fetch</span>/${<span class="hljs-attr">user.id</span>}`}
+                <span class="hljs-attr">className</span>=<span class="hljs-string">"my-2 border w-1/2 rounded-full px-2 cursor-pointer hover:text-3xl hover:text-slate-500 hover:bg-white"</span>
+              &gt;</span>
+                {user.id} - {user.firstName} {user.lastName}
+              <span class="hljs-tag">&lt;/<span class="hljs-name">Link</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+          ))
+        : null}
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/&gt;</span>
+);
+}</span>
+</code></pre>
+
+</body>
+</html>
