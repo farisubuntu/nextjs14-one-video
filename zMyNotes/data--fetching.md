@@ -59,3 +59,76 @@ export default async function ServerSideFetching() {
 
 ## Client Side data fetching
 
+- `useEffect`, `useState` hooks
+- `swr`, `useSWR` hook
+- with loading state
+
+---
+
+- `useEffect`, `useState` hooks
+
+```jsx
+// src/app/client-data-fetch/page.jsx
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+
+async function fetchListOfUsers() {
+  try {
+
+    const apiResponse = await fetch("https://dummyjson.com/users");
+    const result = await apiResponse.json();
+    return result.users;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export default function ClientSideDataFetching() {
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetchListOfUsers().then((data) => {
+      setUsers(data);
+      console.log("data", data);
+      setLoading(false);
+    });
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return (
+      <h3 className="text-3xl font-extrabold">
+        Loading Users | Please waite....
+      </h3>
+    );
+  } else {
+    return (
+      <>
+        <div className="text-2xl bg-slate-500 text-white">
+          <h1>Client side data fetching</h1>
+          {users && users.length > 0
+            ? users.map((user) => (
+            // ....
+              ))
+            : null}
+        </div>
+      </>
+    );
+  }
+}
+
+```
+
+
+- `useSWRhttps://swr.vercel.app/` hook
+
+> More about `swr` hook, see [https://swr.vercel.app/](https://swr.vercel.app/)
+
+```jsx
+// src/app/client-data-fetch/page.jsx
+
+```

@@ -1,34 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import Link from "next/link";
-// useEffect, useState hooks
-// swr, useSwr hook
-// with loading state
+import Link from "next/link";
+
+
+async function fetchListOfUsers() {
+  try {
+    // setLoading(true);
+    const apiResponse = await fetch("https://dummyjson.com/users");
+    const result = await apiResponse.json();
+    return result.users;
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 export default function ClientSideDataFetching() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
 
-  async function fetchListOfUsers() {
-    try {
-      setLoading(true);
-      const apiResponse = await fetch("https://dummyjson.com/users");
-      const result = apiResponse.json();
-      if (result.users) {
-        setUsers(result.users);
-        setLoading(false);
-        console.log("USERS:",users);
-      }
-    } catch (err) {
-      console.log(err);
-      setUsers([]);
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    fetchListOfUsers();
+    fetchListOfUsers().then((data) => {
+      setUsers(data);
+      console.log("data", data);
+      setLoading(false);
+    });
+    setLoading(false);
   }, []);
 
   if (loading) {
@@ -37,25 +34,25 @@ export default function ClientSideDataFetching() {
         Loading Users | Please waite....
       </h3>
     );
+  } else {
+    return (
+      <>
+        <div className="text-2xl bg-slate-500 text-white">
+          <h1>Client side data fetching</h1>
+          {users && users.length > 0
+            ? users.map((user) => (
+                <p key={user.id}>
+                  <Link
+                    href={`/client-data-fetch/${user.id}`}
+                    className="my-2 border w-1/2 rounded-full px-2 cursor-pointer hover:text-3xl hover:text-slate-500 hover:bg-white"
+                  >
+                    {user.id} - {user.firstName} {user.lastName}
+                  </Link>
+                </p>
+              ))
+            : null}
+        </div>
+      </>
+    );
   }
-  
-
-  return (
-    <>
-      <div className="text-2xl bg-slate-500 text-white">
-        {users && users.length > 0
-          ? users.map((user) => (
-              <p key={user.id}>
-                {/* <Link
-                  href={`/client-data-fetch/${user.id}`}
-                  className="my-2 border w-1/2 rounded-full px-2 cursor-pointer hover:text-3xl hover:text-slate-500 hover:bg-white"
-                > */}
-                  {user.id} - {user.firstName} {user.lastName}
-                {/* </Link> */}
-              </p>
-            ))
-          : null}
-      </div>
-    </>
-  );
 }
