@@ -1,4 +1,4 @@
-import RecipeList from "@/components/ui/recipe-list";
+import RecipeList from "@/components/recipe-list";
 
 async function fetchListOfRecipes() {
   try {
@@ -12,7 +12,7 @@ async function fetchListOfRecipes() {
 
 export default async function RecipeListPage() {
   const recipeList = await fetchListOfRecipes();
- 
+
   return (
     <>
       <RecipeList recipeList={recipeList} />
