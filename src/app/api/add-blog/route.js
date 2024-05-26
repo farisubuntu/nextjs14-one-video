@@ -1,33 +1,21 @@
-import { connectToDatabase } from "@/database";
+import connectToDB from "@/database";
+import Blog from "@/models/blog";
 import Joi from "joi";
 import { NextResponse } from "next/server";
 
-// addNewBlog
-
-const addNewBlog = Joi.object({
+const AddNewBlog = Joi.object({
   title: Joi.string().required(),
-  content: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
-export async function POST(request) {
-  // const { title, content } = await request.json();
-  // const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
-  //   method: "POST",
-  //   body: JSON.stringify({
-  //     title,
-  //     body: content,
-  //     userId: 1,
-  //   }),
-  //   headers: {
-  //     "Content-type": "application/json; charset=UTF-8",
-  //   },
-  // });
-  // const data = await res.json();
-  // return NextResponse.json(data);
+export async function POST(req) {
   try {
-    await connectToDatabase();
-    const extractBlogData = await request.json();
-    const { error } = addNewBlog.validate({
+    await connectToDB();
+
+    const extractBlogData = await req.json();
+    const { title, description } = extractBlogData;
+
+    const { error } = AddNewBlog.validate({
       title,
       description,
     });
@@ -38,24 +26,24 @@ export async function POST(request) {
         message: error.details[0].message,
       });
     }
-    // if no error, save data
-    const newlyCreateBlogItem = await Blog.create(extractBlogData);
-    if (newlyCreateBlogItem) {
+
+    const newlyCreatedBlogItem = await Blog.create(extractBlogData);
+    if (newlyCreatedBlogItem) {
       return NextResponse.json({
         success: true,
-        data: "Blog created successfully",
+        message: "Blog added successfully",
       });
     } else {
       return NextResponse.json({
         success: false,
-        message: "Something went wrong",
+        message: "Something went wrong ! Please try again",
       });
     }
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
     return NextResponse.json({
       success: false,
-      message: "Something went wrong",
+      message: "Something went wrong ! Please try again",
     });
   }
 }

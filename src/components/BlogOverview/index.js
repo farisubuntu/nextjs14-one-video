@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import AddNewBlog from "../add-new-blog";
+import AddNewBlog from "../AddNewBlog";
 import {
   Card,
   CardContent,
@@ -17,6 +17,10 @@ const initialBlogFormData = {
   title: "",
   description: "",
 };
+
+//################################################################
+//####################### BlogOverview ###########################
+//################################################################
 
 function BlogOverview({ blogList }) {
   const [openBlogDialog, setOpenBlogDialog] = useState(false);
